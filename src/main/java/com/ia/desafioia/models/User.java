@@ -14,7 +14,7 @@ public class User {
 
     @Id
     @Indexed
-    protected int id;
+    protected String id;
     protected String name;
     protected String login;
     protected String password;
@@ -39,11 +39,11 @@ public class User {
         this(userDto.getName(), userDto.getLogin(), userDto.getPassword(), userDto.getGitHubProfile(), userDto.getEmail());
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

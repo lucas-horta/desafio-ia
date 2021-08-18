@@ -40,6 +40,4 @@ public class UserDataService implements IUserDataService {
     public UserResponseDto findById(String id){
         return this.repository.findById(id).map(UserResponseDto::new).orElse(null);
     }
-
-
 }
