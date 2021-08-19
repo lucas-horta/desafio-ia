@@ -1,6 +1,7 @@
 package com.ia.desafioia.models;
 
 import com.ia.desafioia.dto.UserDto;
+import com.ia.desafioia.dto.UserUpdateDto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -9,7 +10,7 @@ import org.springframework.data.redis.core.index.Indexed;
 import java.util.Date;
 
 @Data
-@RedisHash(value="user")
+@RedisHash("user")
 public class User {
 
     @Id
@@ -18,25 +19,38 @@ public class User {
     protected String name;
     protected String login;
     protected String password;
-    protected Date createdDate = new Date();
+    protected Date createdDate;
     protected Date updatedDate;
-    protected String githubProfile;
+    protected String gitHubProfile;
     protected String email;
     protected boolean admin;
 
     public User() {
     }
 
-    public User(String name, String login, String password, String githubProfile, String email) {
+    public User(String name, String login, String password, String githubProfile, String email, String id) {
         this.name = name;
         this.login = login;
         this.password = password;
-        this.githubProfile = githubProfile;
+        this.gitHubProfile = githubProfile;
         this.email = email;
+        this.id = id;
+    }
+
+    public User(String name, String email, String login, String gitHubProfile, String password) {
+        this.name = name;
+        this.email = email;
+        this.login = login;
+        this.gitHubProfile = gitHubProfile;
+        this.password = password;
     }
 
     public User(UserDto userDto) {
-        this(userDto.getName(), userDto.getLogin(), userDto.getPassword(), userDto.getGitHubProfile(), userDto.getEmail());
+        this(userDto.getName(), userDto.getLogin(), userDto.getPassword(), userDto.getGitHubProfile(), userDto.getEmail(), userDto.getId());
+    }
+
+    public User(UserUpdateDto dto){
+        this(dto.getName(),dto.getEmail(), dto.getLogin(), dto.getGitHubProfile(), dto.getPassword());
     }
 
     public String getId() {
@@ -79,12 +93,12 @@ public class User {
         this.updatedDate = updatedDate;
     }
 
-    public String getGithubProfile() {
-        return githubProfile;
+    public String getGitHubProfile() {
+        return gitHubProfile;
     }
 
-    public void setGithubProfile(String githubProfile) {
-        this.githubProfile = githubProfile;
+    public void setGitHubProfile(String gitHubProfile) {
+        this.gitHubProfile = gitHubProfile;
     }
 
     public String getEmail() {

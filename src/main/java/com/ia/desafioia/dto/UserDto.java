@@ -3,6 +3,9 @@ package com.ia.desafioia.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UserDto {
+
+    @JsonProperty("id")
+    protected String id;
     @JsonProperty("name")
     protected String name;
     @JsonProperty("login")
@@ -32,5 +35,9 @@ public class UserDto {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getId() {
+        return id;
     }
 }

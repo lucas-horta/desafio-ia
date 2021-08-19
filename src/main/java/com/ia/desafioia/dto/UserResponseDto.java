@@ -6,6 +6,8 @@ import com.ia.desafioia.models.User;
 import java.util.Date;
 
 public class UserResponseDto {
+    @JsonProperty("id")
+    protected String id;
     @JsonProperty("name")
     protected String name;
     @JsonProperty("email")
@@ -17,7 +19,8 @@ public class UserResponseDto {
     @JsonProperty("created_date")
     protected Date createdDate;
 
-    public UserResponseDto(String name, String email, String login, String gitHubProfile, Date createdDate) {
+    public UserResponseDto(String name, String email, String login, String gitHubProfile, Date createdDate, String id) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.login = login;
@@ -26,6 +29,6 @@ public class UserResponseDto {
     }
 
     public UserResponseDto(User user){
-        this(user.getName(), user.getEmail(), user.getLogin(), user.getGithubProfile(), user.getCreatedDate());
+        this(user.getName(), user.getEmail(), user.getLogin(), user.getGitHubProfile(), user.getCreatedDate(), user.getId());
     }
 }
