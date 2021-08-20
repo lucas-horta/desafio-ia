@@ -16,8 +16,8 @@ public class User {
     @Id
     @Indexed
     protected String id;
-    protected String name;
     protected String login;
+    protected String name;
     protected String password;
     protected Date createdDate;
     protected Date updatedDate;

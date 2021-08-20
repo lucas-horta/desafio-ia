@@ -7,6 +7,6 @@ public class GitHubRepository {
     protected Integer id;
     @JsonProperty("name")
     protected String name;
-    @JsonProperty("url")
+    @JsonProperty("html_url")
     protected String url;
 }
