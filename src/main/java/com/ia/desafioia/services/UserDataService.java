@@ -25,8 +25,14 @@ public class UserDataService implements IUserDataService {
 
     @Override
     public User create(UserDto dto) {
+
+        if(repository.findAllByLogin(dto.getLogin()).size()!=0 ||
+                repository.findAllByEmail(dto.getEmail()).size()!=0)
+            return null;
+
         User user = new User(dto);
         user.setCreatedDate(new Date());
+
         return this.repository.save(user);
     }
 

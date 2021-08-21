@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class GitHubDataService implements IGitHubDataService {
 
