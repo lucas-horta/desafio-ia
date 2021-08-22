@@ -1,9 +1,15 @@
-version: '3.8'
 services:
-  redis:
+  database:
     container_name: redis_container
     image: redis
     build: ./redis
-    hostname: redis_docker
+    hostname: localhost
     ports:
       - "6379:6379"
+  application:
+    container_name: desafio_application
+    image: desafio-ia
+    links:
+      - database
+    ports:
+      - "8080:8080"
