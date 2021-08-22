@@ -33,7 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder builder, IUserRepository userRepository) throws Exception{
+    public void configureGlobal(AuthenticationManagerBuilder builder, IUserRepository userRepository){
         userRepository.findAll().forEach(user -> {
             try{
                 builder.inMemoryAuthentication()

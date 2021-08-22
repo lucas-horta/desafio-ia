@@ -5,7 +5,7 @@ import com.ia.desafioia.dto.UserResponseDto;
 import com.ia.desafioia.dto.UserUpdateDto;
 import com.ia.desafioia.models.GitHubProfile;
 import com.ia.desafioia.models.User;
-import com.ia.desafioia.services.interfaces.GitHubDataService;
+import com.ia.desafioia.services.GitHubDataService;
 import com.ia.desafioia.services.interfaces.IGitHubDataService;
 import com.ia.desafioia.services.interfaces.IUserDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,8 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    protected IUserDataService dataService;
-    protected IGitHubDataService gitHubDataService;
+    protected final IUserDataService dataService;
+    protected final IGitHubDataService gitHubDataService;
 
     @Autowired
     public UserController(IUserDataService dataService, GitHubDataService gitHubDataService) {

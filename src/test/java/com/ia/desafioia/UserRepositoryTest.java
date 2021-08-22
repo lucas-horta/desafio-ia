@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -38,17 +38,47 @@ public class UserRepositoryTest {
     @Autowired
     private MockMvc mvc;
 
+    static byte[] toJson(Object object) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return mapper.writeValueAsBytes(object);
+    }
+
+    private void createTestUser() {
+        User user = new User();
+        user.setId("testId");
+        user.setName("testName");
+        user.setLogin("testLogin");
+        user.setPassword("testPassword");
+        user.setEmail("testEmail");
+        user.setGitHubProfile("lucas-horta");
+        user.setCreatedDate(new Date(1629460800000L));
+        userRepository.save(user);
+    }
+
+    private UserDto testUserDto() {
+        return new UserDto("testName", "testLogin", "testPassword", "testGitHubProfile", "testEmail");
+    }
+
     @Test
-    public void shouldSaveUser_whenValidForm() throws Exception{
-        UserDto user = testUser();
+    public void unauthenticatedCantAccess() throws Exception {
+        mvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void shouldSaveUser_whenValidForm() throws Exception {
+        UserDto user = testUserDto();
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(user)))
                 .andExpect(status().isCreated());
     }
+
     @Test
-    public void shouldNotSaveUser_whenInvalidForm() throws Exception{
-        UserDto user = testUser();
+    public void shouldNotSaveUser_whenInvalidForm() throws Exception {
+        UserDto user = testUserDto();
         user.setLogin("");
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -58,8 +88,8 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void shouldNotSaveUser_whenRepeatLogin() throws Exception{
-        UserDto user = testUser();
+    public void shouldNotSaveUser_whenRepeatLogin() throws Exception {
+        UserDto user = testUserDto();
         user.setLogin("repeat");
         userRepository.save(new User(user));
         mvc.perform(post("/user")
@@ -70,8 +100,8 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void shouldNotSaveUser_whenRepeatEmail() throws Exception{
-        UserDto user = testUser();
+    public void shouldNotSaveUser_whenRepeatEmail() throws Exception {
+        UserDto user = testUserDto();
         user.setEmail("repeat@mail.com");
         userRepository.save(new User(user));
         mvc.perform(post("/user")
@@ -81,21 +111,8 @@ public class UserRepositoryTest {
                 .andExpect(content().string(""));
     }
 
-    @WithMockUser(username = "john")
     @Test
-    public void givenUsers_whenGetUsers_thenShowList() throws Exception {
-
-        createTestUser();
-        mvc.perform(get("/users")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].name", is("testName")));
-    }
-
-    @WithMockUser(username = "john")
-    @Test
+    @WithMockUser(username = "testLogin")
     public void givenUser_whenGetUser_thenShowUser() throws Exception {
 
         createTestUser();
@@ -108,10 +125,21 @@ public class UserRepositoryTest {
                 .andExpect(jsonPath("$.created_date", is("2021-08-20T12:00:00.000+00:00")));
     }
 
-    @WithMockUser(username = "john")
     @Test
-    public void givenNoUsers_whenGetUsers_thenShowEmptyArray() throws Exception {
+    @WithMockUser(username = "testLogin")
+    public void givenUsers_whenGetUsers_thenShowList() throws Exception {
+        createTestUser();
+        mvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].name", is("testName")));
+    }
 
+    @Test
+    @WithMockUser(username = "testLogin")
+    public void givenNoUsers_whenGetUsers_thenShowEmptyArray() throws Exception {
         mvc.perform(get("/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -121,33 +149,42 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void unauthenticatedCantAccess() throws Exception{
-        mvc.perform(get("/users")
+    @WithMockUser(username = "testLogin")
+    public void givenUser_whenDeleteUser_thenReturnTrue() throws Exception {
+        createTestUser();
+        mvc.perform(delete("/user/testId")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
-
+                .andExpect(content().string("true"))
+                .andExpect(status().isOk());
     }
 
-    private void createTestUser(){
-        User user = new User();
-        user.setId("testId");
-        user.setName("testName");
-        user.setLogin("testLogin");
-        user.setPassword("testPassword");
-        user.setEmail("testEmail");
-        user.setGitHubProfile("lucas-horta");
-        user.setCreatedDate(new Date(1629460800000L));
-        userRepository.save(user);
+    @Test
+    @WithMockUser(username = "testLogin")
+    public void givenInvalidUser_whenDeleteUser_thenReturnFalse() throws Exception {
+        mvc.perform(delete("/user/invalidId")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("false"))
+                .andExpect(status().isOk());
     }
 
-    private UserDto testUser(){
-        return new UserDto("testName", "testLogin", "testPassword", "testGitHubProfile", "testEmail");
+    @Test
+    @WithMockUser(username = "testLogin")
+    public void givenValidGitHubProfile_thenReturnGitHubProfileInformation() throws Exception {
+        createTestUser();
+        mvc.perform(get("/user/testId/github"))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is("87447977")));
     }
 
-    static byte[] toJson(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.writeValueAsBytes(object);
+    @Test
+    @WithMockUser(username = "testLogin")
+    public void givenInvalidUser_thenReturnEmptyGitHubProfile() throws Exception {
+        mvc.perform(get("/user/invalidId/github"))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.repositories", hasSize(0)));
     }
-
 }

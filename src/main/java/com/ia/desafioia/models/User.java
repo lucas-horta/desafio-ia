@@ -1,7 +1,6 @@
 package com.ia.desafioia.models;
 
 import com.ia.desafioia.dto.UserDto;
-import com.ia.desafioia.dto.UserUpdateDto;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -55,9 +54,6 @@ public class User {
         this(userDto.getName(), userDto.getLogin(), userDto.getPassword(), userDto.getGitHubProfile(), userDto.getEmail(), userDto.getId());
     }
 
-    public User(UserUpdateDto dto){
-        this(dto.getName(),dto.getEmail(), dto.getLogin(), dto.getGitHubProfile(), dto.getPassword());
-    }
 
     public String getId() {
         return id;

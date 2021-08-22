@@ -1,8 +1,9 @@
-package com.ia.desafioia.services.interfaces;
+package com.ia.desafioia.services;
 
 import com.ia.desafioia.models.GitHubProfile;
 import com.ia.desafioia.models.GitHubRepository;
 import com.ia.desafioia.repositories.interfaces.IUserRepository;
+import com.ia.desafioia.services.interfaces.IGitHubDataService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,8 +12,8 @@ import org.springframework.web.reactive.function.client.WebClientException;
 @Service
 public class GitHubDataService implements IGitHubDataService {
 
-    protected WebClient gitHubWebClient;
-    protected IUserRepository repository;
+    protected final WebClient gitHubWebClient;
+    protected final IUserRepository repository;
 
     public GitHubDataService(IUserRepository repository) {
         this.repository = repository;
@@ -21,15 +22,15 @@ public class GitHubDataService implements IGitHubDataService {
 
     @Override
     public GitHubProfile github(String id) {
-        String github = "";
+        String gitHubName = "";
         GitHubProfile gitHubProfile = new GitHubProfile();
         if(this.repository.findById(id).isPresent()){
-            github = this.repository.findById(id).get().getGitHubProfile();
+            gitHubName = this.repository.findById(id).get().getGitHubProfile();
         }
         try {
             gitHubProfile = gitHubWebClient
                     .get()
-                    .uri("/" + github)
+                    .uri("/" + gitHubName)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .bodyToMono(GitHubProfile.class)
@@ -37,17 +38,18 @@ public class GitHubDataService implements IGitHubDataService {
         } catch (WebClientException e) {
             e.printStackTrace();
         }
-        gitHubProfile.setRepositories(repositories(github));
+        assert gitHubProfile != null;
+        gitHubProfile.setRepositories(repositories(gitHubName));
         return gitHubProfile;
     }
 
     @Override
-    public GitHubRepository[] repositories(String github) {
+    public GitHubRepository[] repositories(String gitHub) {
         GitHubRepository[] repos = new GitHubRepository[0];
         try {
             repos = gitHubWebClient
                     .get()
-                    .uri("/" + github + "/repos")
+                    .uri("/" + gitHub + "/repos")
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .bodyToMono(GitHubRepository[].class)

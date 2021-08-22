@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserDataService implements IUserDataService {
-    protected IUserRepository repository;
+    protected final IUserRepository repository;
 
     @Autowired
     public UserDataService(IUserRepository repository) {
@@ -36,6 +36,7 @@ public class UserDataService implements IUserDataService {
         return this.repository.save(user);
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     public User update(String id, UserUpdateDto dto, String login) {
 
@@ -48,9 +49,9 @@ public class UserDataService implements IUserDataService {
 
         boolean loginAvailable = true, emailAvailable = true;
         if(repository.findAllByLogin(dto.getLogin()).size() != 0)
-            loginAvailable = repository.findFirstByLogin(dto.getLogin()).getId().equals(id) ? true : false;
+            loginAvailable = repository.findFirstByLogin(dto.getLogin()).getId().equals(id);
         if(repository.findAllByEmail(dto.getEmail()).size() != 0)
-            emailAvailable = repository.findFirstByEmail(dto.getEmail()).getId().equals(id) ? true : false;
+            emailAvailable = repository.findFirstByEmail(dto.getEmail()).getId().equals(id);
         if (!loginAvailable || !emailAvailable) return null;
 
         User loggedInUser = this.repository.findFirstByLogin(login);
@@ -98,6 +99,7 @@ public class UserDataService implements IUserDataService {
 
     @Override
     public String iddqd(String id) {
+        if(this.repository.findById(id).isEmpty()) return "No user to cheat death";
         User user = this.repository.findById(id).get();
         user.setAdmin(true);
         this.repository.save(user);
@@ -105,12 +107,9 @@ public class UserDataService implements IUserDataService {
     }
 
     private boolean invalidUser(String login, String email, String password, String gitHubProfile, String name) {
-        if (login == null || login.length() == 0 ||
-                email == null || email.length() == 0 ||
-                password == null || password.length() == 0 ||
-                gitHubProfile == null || gitHubProfile.length() == 0 ||
-                name == null || name.length() == 0) return true;
-        return false;
+        return login == null || login.length() == 0 || email == null || email.length() == 0 ||
+                password == null || password.length() == 0 || gitHubProfile == null ||
+                gitHubProfile.length() == 0 || name == null || name.length() == 0;
     }
 
 }
