@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = TestRedisConfiguration.class)
 @AutoConfigureMockMvc
 
-public class UserRepositoryTest {
+public class ApplicationUnitTests {
 
     @Autowired
     private IUserRepository userRepository;
