@@ -25,19 +25,21 @@ public class UserDataService implements IUserDataService {
 
     @Override
     public User create(UserDto dto) {
-
-        if(repository.findAllByLogin(dto.getLogin()).size()!=0 ||
-                repository.findAllByEmail(dto.getEmail()).size()!=0)
+        //TODO: Remove bruteforce validation through @Valid for DTO, with @NotNull/@NotEmpty etc
+        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName()))
             return null;
 
         User user = new User(dto);
         user.setCreatedDate(new Date());
-
         return this.repository.save(user);
     }
 
     @Override
     public User update(String id, UserUpdateDto dto, String login) {
+
+        //TODO: Remove bruteforce validation through @Valid for DTO, with @NotNull/@NotEmpty etc
+        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName()))
+            return null;
 
         User loggedInUser = this.repository.findFirstByLogin(login);
         User user = this.repository.findById(id).get();
@@ -45,7 +47,7 @@ public class UserDataService implements IUserDataService {
         boolean isChangingPassword = !dto.getPassword().equals(user.getPassword());
         boolean userCanChangePassword = !loggedInUser.isAdmin() || !loggedInUser.getId().equals(user.getId());
 
-        if(isChangingPassword && !userCanChangePassword){
+        if (isChangingPassword && !userCanChangePassword) {
             return null;
         }
 
@@ -60,7 +62,7 @@ public class UserDataService implements IUserDataService {
 
     @Override
     public Boolean delete(String id) {
-        if(!this.repository.existsById(id)){
+        if (!this.repository.existsById(id)) {
             return false;
         }
         this.repository.deleteById(id);
@@ -78,7 +80,7 @@ public class UserDataService implements IUserDataService {
     }
 
     @Override
-    public UserResponseDto findById(String id){
+    public UserResponseDto findById(String id) {
         return this.repository.findById(id).map(UserResponseDto::new).orElse(null);
     }
 
@@ -87,7 +89,18 @@ public class UserDataService implements IUserDataService {
         User user = this.repository.findById(id).get();
         user.setAdmin(true);
         this.repository.save(user);
-        return "God mode activated for user id "+id;
+        return "God mode activated for user id " + id;
+    }
+
+    private boolean invalidUser(String login, String email, String password, String gitHubProfile, String name) {
+        if (repository.findAllByLogin(login).size() != 0 ||
+                repository.findAllByEmail(email).size() != 0 ||
+                login == null || login.length() == 0 ||
+                email == null || email.length() == 0 ||
+                password == null || password.length() == 0 ||
+                gitHubProfile == null || gitHubProfile.length() == 0 ||
+                name == null || name.length() == 0) return true;
+        return false;
     }
 
 }
