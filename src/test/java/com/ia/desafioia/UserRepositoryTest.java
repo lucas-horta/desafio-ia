@@ -39,7 +39,7 @@ public class UserRepositoryTest {
     private MockMvc mvc;
 
     @Test
-    public void shouldSaverUser_ValidForm() throws Exception{
+    public void shouldSaveUser_whenValidForm() throws Exception{
         UserDto user = testUser();
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -47,56 +47,95 @@ public class UserRepositoryTest {
                 .andExpect(status().isCreated());
     }
     @Test
-    public void shouldNotSaverUser_InvalidForm() throws Exception{
+    public void shouldNotSaveUser_whenInvalidForm() throws Exception{
         UserDto user = testUser();
         user.setLogin("");
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(user)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(content().string(""));
     }
 
     @Test
-    public void shouldNotSaveUser_Repeat_Login() throws Exception{
+    public void shouldNotSaveUser_whenRepeatLogin() throws Exception{
         UserDto user = testUser();
         user.setLogin("repeat");
         userRepository.save(new User(user));
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(user)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated())
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    public void shouldNotSaveUser_whenRepeatEmail() throws Exception{
+        UserDto user = testUser();
+        user.setEmail("repeat@mail.com");
+        userRepository.save(new User(user));
+        mvc.perform(post("/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(user)))
+                .andExpect(status().isCreated())
+                .andExpect(content().string(""));
     }
 
     @WithMockUser(username = "john")
     @Test
-    public void givenUsers_whenGetUsers_thenStatus200() throws Exception {
+    public void givenUsers_whenGetUsers_thenShowList() throws Exception {
 
-        createTestUser("1", "É Amigão?");
+        createTestUser();
         mvc.perform(get("/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content()
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].name", is("É Amigão?")))
-                .andExpect(jsonPath("$[0].id", is("1")));
+                .andExpect(jsonPath("$[0].name", is("testName")));
+    }
+
+    @WithMockUser(username = "john")
+    @Test
+    public void givenUser_whenGetUser_thenShowUser() throws Exception {
+
+        createTestUser();
+        mvc.perform(get("/user/testId")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name", is("testName")))
+                .andExpect(jsonPath("$.created_date", is("2021-08-20T12:00:00.000+00:00")));
+    }
+
+    @WithMockUser(username = "john")
+    @Test
+    public void givenNoUsers_whenGetUsers_thenShowEmptyArray() throws Exception {
+
+        mvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string("[]"));
     }
 
     @Test
-    public void testUnauthenticatedCantAccess() throws Exception{
+    public void unauthenticatedCantAccess() throws Exception{
         mvc.perform(get("/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
     }
 
-    private void createTestUser(String name, String id){
+    private void createTestUser(){
         User user = new User();
-        user.setId(id);
-        user.setName(name);
+        user.setId("testId");
+        user.setName("testName");
         user.setLogin("testLogin");
         user.setPassword("testPassword");
         user.setEmail("testEmail");
-        user.setGitHubProfile("testGitHubProfile");
+        user.setGitHubProfile("lucas-horta");
         user.setCreatedDate(new Date(1629460800000L));
         userRepository.save(user);
     }
@@ -104,8 +143,6 @@ public class UserRepositoryTest {
     private UserDto testUser(){
         return new UserDto("testName", "testLogin", "testPassword", "testGitHubProfile", "testEmail");
     }
-
-
 
     static byte[] toJson(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
