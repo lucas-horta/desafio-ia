@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = TestRedisConfiguration.class)
 @AutoConfigureMockMvc
-@WithMockUser(username = "john")
 
 public class UserRepositoryTest {
 
@@ -40,8 +39,17 @@ public class UserRepositoryTest {
     private MockMvc mvc;
 
     @Test
-    public void shouldSaveUser_toRedis() throws Exception{
+    public void shouldSaverUser_ValidForm() throws Exception{
         UserDto user = testUser();
+        mvc.perform(post("/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(user)))
+                .andExpect(status().isCreated());
+    }
+    @Test
+    public void shouldNotSaverUser_InvalidForm() throws Exception{
+        UserDto user = testUser();
+        user.setLogin("");
         mvc.perform(post("/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(user)))
@@ -59,6 +67,7 @@ public class UserRepositoryTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(username = "john")
     @Test
     public void givenUsers_whenGetUsers_thenStatus200() throws Exception {
 
@@ -72,6 +81,14 @@ public class UserRepositoryTest {
                 .andExpect(jsonPath("$[0].id", is("1")));
     }
 
+    @Test
+    public void testUnauthenticatedCantAccess() throws Exception{
+        mvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+    }
+
     private void createTestUser(String name, String id){
         User user = new User();
         user.setId(id);
@@ -82,11 +99,6 @@ public class UserRepositoryTest {
         user.setGitHubProfile("testGitHubProfile");
         user.setCreatedDate(new Date(1629460800000L));
         userRepository.save(user);
-    }
-
-    @Test
-    public void testUnauthenticatedCantAccess() {
-
     }
 
     private UserDto testUser(){
