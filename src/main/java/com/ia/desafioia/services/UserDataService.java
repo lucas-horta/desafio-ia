@@ -37,8 +37,18 @@ public class UserDataService implements IUserDataService {
     }
 
     @Override
-    public User update(String id, UserUpdateDto dto) {
+    public User update(String id, UserUpdateDto dto, String login) {
+
+        User loggedInUser = this.repository.findFirstByLogin(login);
         User user = this.repository.findById(id).get();
+
+        boolean isChangingPassword = !dto.getPassword().equals(user.getPassword());
+        boolean userCanChangePassword = !loggedInUser.isAdmin() || !loggedInUser.getId().equals(user.getId());
+
+        if(isChangingPassword && !userCanChangePassword){
+            return null;
+        }
+
         user.setPassword(dto.getPassword());
         user.setEmail(dto.getEmail());
         user.setLogin(dto.getLogin());
@@ -79,4 +89,5 @@ public class UserDataService implements IUserDataService {
         this.repository.save(user);
         return "God mode activated for user id "+id;
     }
+
 }

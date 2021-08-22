@@ -16,15 +16,19 @@ public class User {
     @Id
     @Indexed
     protected String id;
+
     @Indexed
     protected String login;
+
     protected String name;
     protected String password;
     protected Date createdDate;
     protected Date updatedDate;
     protected String gitHubProfile;
+
     @Indexed
     protected String email;
+
     protected boolean admin;
 
     public User() {

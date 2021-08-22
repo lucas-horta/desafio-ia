@@ -3,8 +3,6 @@ package com.ia.desafioia.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ia.desafioia.models.User;
 
-import java.util.Date;
-
 public class UserUpdateDto {
     @JsonProperty("name")
     protected String name;

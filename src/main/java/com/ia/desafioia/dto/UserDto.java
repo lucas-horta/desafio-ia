@@ -17,10 +17,18 @@ public class UserDto {
     @JsonProperty("email")
     protected String email;
 
+
+    public UserDto(String name, String login, String password, String gitHubProfile, String email) {
+        this.name = name;
+        this.login = login;
+        this.password = password;
+        this.gitHubProfile = gitHubProfile;
+        this.email = email;
+    }
+
     public String getName() {
         return name;
     }
-
     public String getLogin() {
         return login;
     }
@@ -39,5 +47,21 @@ public class UserDto {
 
     public String getId() {
         return id;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public void setGitHubProfile(String gitHubProfile) {
+        this.gitHubProfile = gitHubProfile;
     }
 }

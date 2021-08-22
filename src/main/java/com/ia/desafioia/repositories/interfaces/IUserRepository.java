@@ -11,4 +11,5 @@ public interface IUserRepository extends PagingAndSortingRepository<User,String>
     List<User> findAll();
     List<User> findAllByLogin(String login);
     List<User> findAllByEmail(String email);
+    User findFirstByLogin(String login);
 }

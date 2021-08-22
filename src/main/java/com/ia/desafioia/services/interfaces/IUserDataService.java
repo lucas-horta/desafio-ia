@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IUserDataService {
     User create(UserDto dto);
-    User update(String id, UserUpdateDto dto);
+    User update(String id, UserUpdateDto dto, String login);
     Boolean delete(String id);
     List<UserResponseDto> findAll();
     List<UserResponseDto> findAll(int page, int size);

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class UserController {
         this.gitHubDataService = gitHubDataService;
     }
 
+
     @PostMapping(value = "/user", consumes = "application/json")
     public ResponseEntity<User> createUser(@RequestBody UserDto dto) {
         return new ResponseEntity<>(this.dataService.create(dto), HttpStatus.CREATED);
@@ -41,8 +43,8 @@ public class UserController {
 
     @PatchMapping(value = "/user/{id}", consumes = "application/json")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<User> update(@PathVariable String id, @RequestBody UserUpdateDto dto) {
-        return new ResponseEntity<>(this.dataService.update(id, dto), HttpStatus.OK);
+    public ResponseEntity<User> update(@PathVariable String id, @RequestBody UserUpdateDto dto, Authentication authentication) {
+        return new ResponseEntity<>(this.dataService.update(id, dto, authentication.getName()), HttpStatus.OK);
     }
 
 

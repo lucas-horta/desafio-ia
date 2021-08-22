@@ -44,6 +44,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 e.printStackTrace();
             }
         });
-        builder.inMemoryAuthentication().withUser("admin").password(passwordEncoder().encode("admin")).roles("ADMIN");
     }
 }
