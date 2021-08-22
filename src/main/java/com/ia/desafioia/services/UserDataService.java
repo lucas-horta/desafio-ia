@@ -26,7 +26,9 @@ public class UserDataService implements IUserDataService {
     @Override
     public User create(UserDto dto) {
         //TODO: Remove bruteforce validation through @Valid for DTO, with @NotNull/@NotEmpty etc
-        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName()))
+        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName()) ||
+                repository.findAllByLogin(dto.getLogin()).size() != 0 ||
+                repository.findAllByEmail(dto.getEmail()).size() != 0)
             return null;
 
         User user = new User(dto);
@@ -37,9 +39,19 @@ public class UserDataService implements IUserDataService {
     @Override
     public User update(String id, UserUpdateDto dto, String login) {
 
-        //TODO: Remove bruteforce validation through @Valid for DTO, with @NotNull/@NotEmpty etc
-        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName()))
+
+        //TODO Remove bruteforce validations (valid user, repeat login, repeat email)
+
+        if (invalidUser(dto.getLogin(), dto.getEmail(), dto.getPassword(), dto.getGitHubProfile(), dto.getName())){
             return null;
+        }
+
+        boolean loginAvailable = true, emailAvailable = true;
+        if(repository.findAllByLogin(dto.getLogin()).size() != 0)
+            loginAvailable = repository.findFirstByLogin(dto.getLogin()).getId().equals(id) ? true : false;
+        if(repository.findAllByEmail(dto.getEmail()).size() != 0)
+            emailAvailable = repository.findFirstByEmail(dto.getEmail()).getId().equals(id) ? true : false;
+        if (!loginAvailable || !emailAvailable) return null;
 
         User loggedInUser = this.repository.findFirstByLogin(login);
         User user = this.repository.findById(id).get();
@@ -93,9 +105,7 @@ public class UserDataService implements IUserDataService {
     }
 
     private boolean invalidUser(String login, String email, String password, String gitHubProfile, String name) {
-        if (repository.findAllByLogin(login).size() != 0 ||
-                repository.findAllByEmail(email).size() != 0 ||
-                login == null || login.length() == 0 ||
+        if (login == null || login.length() == 0 ||
                 email == null || email.length() == 0 ||
                 password == null || password.length() == 0 ||
                 gitHubProfile == null || gitHubProfile.length() == 0 ||
