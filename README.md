@@ -17,4 +17,4 @@ Para execução do projeto, o banco de dados redis deve estar funcionando em loc
 O docker-compose do projeto sobe um container tanto com a imagem da aplicação quanto a imagem do redis.  
 
 ### REST API
-Um pacote de chamadas do Postman para os endpoints está presente em ./chamadas API.json
+Um pacote de chamadas do Postman para os endpoints está presente em ./chamadasAPI.json
