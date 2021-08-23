@@ -1,7 +1,7 @@
 # desafio-ia
 
 ### Desenvolvimento
-A aplicação foi desenvolvida como parte da entrevista técnica para Desenvolvedor de Software no Instituto Atlântico, Fortaleza-CE.  
+A aplicação foi desenvolvida como parte da entrevista técnica para Desenvolvedor de Software no Instituto Atlântico, Fortaleza-CE. A apresentação do projeto com algumas ponderações está disponível em um arquivo no google slides: [link](https://docs.google.com/presentation/d/1O_3MXX36wZIUUYoctwDXv7KVLDSRu-Ii8T3u-P19Wjs/edit?usp=sharing)  
 Foi utilizada a IDE IntelliJ IDEA 2021.2, Java SDK 11.  
 Foi utilizada uma imagem docker do redis para o cache de sessão e a persistência de dados da aplicação durante todo o processo de desenvolvimento.  
 
