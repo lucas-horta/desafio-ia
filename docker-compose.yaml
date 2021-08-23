@@ -3,12 +3,12 @@ services:
     container_name: redis_container
     image: redis
     build: ./redis
-    hostname: localhost
+    hostname: redishost
     ports:
       - "6379:6379"
   application:
     container_name: desafio_application
-    image: desafio-ia
+    image: desafio-ia:0.0.1-SNAPSHOT
     links:
       - database
     ports:
