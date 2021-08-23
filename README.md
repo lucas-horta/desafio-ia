@@ -9,11 +9,12 @@ Foi utilizada uma imagem docker do redis para o cache de sessão e a persistênc
 A imagem da aplicação foi criada através do plugin spring-boot do maven (build-image).  
 A imagem do redis é construída através do dockerfile presente em ./redis.  
 Os containers são criados e linkados utilizando o ./docker-compose.yaml.  
+A imagem do projeto está no dockerhub nesse repositório: [link](https://hub.docker.com/repository/docker/lucashorta/desafio-ia)
 
 ### Execução
 As portas 8080 e 6379 no localhost devem estar livres para teste da aplicação.  
 Para execução do projeto, o banco de dados redis deve estar funcionando em localhost:6379, localmente ou em container.  
-O dockercompose sobe um container tanto com a imagem da aplicação quanto a imagem do Redis.  
+O docker-compose do projeto sobe um container tanto com a imagem da aplicação quanto a imagem do redis.  
 
 ### REST API
-Um pacote de chamadas do Postman para os endpoints está incluído em ./chamadasAPI.json
+Um pacote de chamadas do Postman para os endpoints está presente em ./chamadas API.json
